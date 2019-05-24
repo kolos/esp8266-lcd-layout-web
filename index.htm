@@ -1,0 +1,109 @@
+﻿<!DOCTYPE html>
+<html lang="hu">
+    <head>
+        <title>
+            ESP8266
+        </title>
+        <meta charset="utf8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<style>
+			table {
+				background:#7ba630
+			}
+			td {
+				background-color: #7ba630;
+				width: 35px;
+				height: 55px;
+			}
+			td.black {
+				background-color: #141e2b;
+			}
+		</style>
+    </head>
+    <body>
+		<div id="content">
+			<textarea onkeyup="kuldd();" name="data" id="data" style="font-family: monospace" rows="2" cols="16"></textarea><br/>
+			<button onclick="kuldd();">Küldd</button>
+			
+			<p>
+				<table border=1>
+					<tr><td></td><td></td><td></td><td></td><td></td></tr>
+					<tr><td></td><td></td><td></td><td></td><td></td></tr>
+					<tr><td></td><td></td><td></td><td></td><td></td></tr>
+					<tr><td></td><td></td><td></td><td></td><td></td></tr>
+					<tr><td></td><td></td><td></td><td></td><td></td></tr>
+					<tr><td></td><td></td><td></td><td></td><td></td></tr>
+					<tr><td></td><td></td><td></td><td></td><td></td></tr>
+					<tr><td></td><td></td><td></td><td></td><td></td></tr>
+				</table>
+				<select name="customchar" id="customchar">
+					<option>0</option>
+					<option>1</option>
+					<option>2</option>
+					<option>3</option>
+					<option>4</option>
+					<option>5</option>
+					<option>6</option>
+					<option>7</option>
+				</select>
+				<button onclick="saveCustomChar()">MENTÉS</button>
+			</p>
+			
+			<p>
+
+			</p>
+		</div>
+		<script type="text/javascript">
+			var kuldd = function() {
+				fetch("/lcd", {
+					method: "POST", 
+					headers: { "Content-Type": "application/x-www-form-urlencoded"},
+					body: "data=" + document.getElementById("data").value
+				});
+			}
+			
+			var saveCustomChar = function() {
+				console.log(arduinoFormattedCharmap());
+				fetch("/lcd_customchar", {
+					method: "POST", 
+					headers: { "Content-Type": "application/x-www-form-urlencoded"},
+					body: "char=" + document.getElementById("customchar").value + "&" + httpReqFormattedCharmap()
+				});
+			}
+			
+			var cell_clicked = function() {
+				this.classList.toggle("black");
+			}
+			
+			var cells = document.getElementsByTagName("td");
+			for(var i = 0; i<cells.length; i++) {
+				cells[i].onclick = cell_clicked;
+			}
+			
+			var calcValue = function() {
+				var charmap = [];
+				var rows = document.getElementsByTagName("tr");
+				
+				for(var i = 0; i < rows.length; i++) {
+					var rowValue = "";
+
+					rows[i].childNodes.forEach(function(cell, idx) {
+						rowValue += cell.classList.contains("black") ? 1 : 0;
+					});
+					
+					charmap.push(parseInt(rowValue,2));
+				}
+				
+				return charmap;
+			}
+			
+			var arduinoFormattedCharmap = function() {
+				return "{ " + calcValue().map(function(d, idx) { return "0x" + d.toString(16); }).join(", ") + " }";
+			}
+			
+			var httpReqFormattedCharmap = function() {
+				return calcValue().map(function(d, idx) { return "byte_" + idx + "=" + d; }).join("&");
+			}
+		</script>
+	</body>
+</html>
