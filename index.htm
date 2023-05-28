@@ -52,8 +52,17 @@
 			<p>
 				<button onclick="toggleLcdMode()">LCD mód toggle</button>
 			</p>
+
+			<p><input type="range" min="0" max="1023" value="500" onchange="updateBacklightPwm(this)"><br>Backlight: <output id="pwm" value="">500</output></p>
 		</div>
 		<script type="text/javascript">
+			var updateBacklightPwm = function(e) {
+				var pwm = e.value;
+				fetch("/lcd_pwm?val=" + pwm);
+
+				document.getElementById("pwm").value = pwm;
+			}
+
 			var toggleLcdMode = function() {
 				fetch("/lcd_mode_switch", {
 					method: "POST", 
