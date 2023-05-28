@@ -50,10 +50,17 @@
 			</p>
 			
 			<p>
-
+				<button onclick="toggleLcdMode()">LCD mód toggle</button>
 			</p>
 		</div>
 		<script type="text/javascript">
+			var toggleLcdMode = function() {
+				fetch("/lcd_mode_switch", {
+					method: "POST", 
+					headers: { "Content-Type": "application/x-www-form-urlencoded"}
+				});
+			}
+
 			var kuldd = function() {
 				fetch("/lcd", {
 					method: "POST", 
